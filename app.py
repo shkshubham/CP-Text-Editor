@@ -276,11 +276,23 @@ class Window(QMainWindow):
         self.toolbar.addAction(alignJustify)
         self.toolbar.addSeparator()
 
-        statusbar = QStatusBar()
-        self.setStatusBar(statusbar)
+
+#-------------------------------------------------StatusBar------------------------------
+        self.status = self.statusBar()
+        self.textEdit.cursorPositionChanged.connect(self.CursorPosition)
+
+        #statusbar = QStatusBar()
+        #self.setStatusBar(statusbar)
 
         self.show()
 
+
+    def CursorPosition(self):
+        line = self.textEdit.textCursor().blockNumber()
+        col = self.textEdit.textCursor().columnNumber()
+        linecol = ("Line: "+str(line)+" | "+"Column: "+str(col))
+        self.status.showMessage(linecol)
+        
 
     def load(self, f):
         if not QFile.exists(f):
@@ -323,15 +335,13 @@ class Window(QMainWindow):
     def setCurrentFileName(self, fileName=''):
         self.fileName = fileName
         self.textEdit.document().setModified(False)
-
         if not fileName:
             shownName = 'untitled.txt'
         else:
-            shownName = QFileInfo(fileName).fileName()
-
+            #shownName = QFileInfo(fileName).fileName()
+            shownName = self.fileName
         self.setWindowTitle(self.tr("%s[*] - %s" % (shownName, "CP Editor")))
         self.setWindowModified(False)
-
 
     def new_file(self):
         if self.maybeSave():
@@ -340,6 +350,8 @@ class Window(QMainWindow):
 
         
     def open_file(self):
+        #file = str(QFileDialog.getExistingDirectory(self, "Select Directory  "))
+        #print (file)
         fileName = QFileDialog.getOpenFileName(self, "Open file",".","(*.*)")
         if fileName:
             self.load(fileName)
@@ -347,12 +359,18 @@ class Window(QMainWindow):
     def save_file(self):
         if not self.fileName:
             return self.saveAs_file()
-
-        writer = QTextDocumentWriter(self.fileName)
-        success = writer.write(self.textEdit.document())
-        if success:
-            self.textEdit.document().setModified(False)
-        return success
+        if self.fileName:
+            file = open(self.fileName, "w")
+            success = data = self.textEdit.toPlainText() 
+            file.write(data)
+            file.close()
+            if success:
+                self.textEdit.document().setModified(False)
+            return success
+        
+        #writer = QTextDocumentWriter(self.fileName)
+        #success = writer.write(self.textEdit.document())
+        
 
     def saveAs_file(self):
         fn = QFileDialog.getSaveFileName(self, "Save file")
@@ -361,9 +379,9 @@ class Window(QMainWindow):
             return False
 
         lfn = fn.lower()
-        if not lfn.endswith(('.txt', '.py', '.html')):
+        #if not lfn.endswith(('.txt', '.py', '.html')):
         # The default.
-            fn += '.txt'
+            #fn += '.txt'
         self.setCurrentFileName(fn)
         return self.save_file()
 
