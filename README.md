@@ -1,4 +1,4 @@
-# Freeware Editor by using Python module for GUI Application Development PyQt5, JSON, CSS.
+# Freeware Editor by using Python module for GUI Application Development PyQt4, JSON, CSS.
 -----------------------------------------------------------------------------------
 
 # Some features are:
